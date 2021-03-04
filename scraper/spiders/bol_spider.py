@@ -1,10 +1,8 @@
+import scrapy, json, os
 from types import prepare_class
-import scrapy
-import json, os
 from datetime import datetime
 from scrapy.exceptions import CloseSpider
 from scrapy.crawler import CrawlerProcess
-from twisted.internet import reactor
 from multiprocessing import Process
 
 class BolSpider(scrapy.Spider):
@@ -75,20 +73,24 @@ def run_spider(url):
     process.crawl(BolSpider)
     process.start() # the script will block here until the crawling is finished
    
-if __name__ == "__main__":
+def bol_scraper(urls): # feed a list of URLS
+
+    for url in urls:        
+        p = Process(target = run_spider, args=(url,)) 
+        p.start()
+        p.join()
+
+if __name__ == '__main__':
 
     urls = [
-        #'https://www.bol.com/nl/l/gaming-monitoren/N/10460/filter_N/4274299157/?page=1',    # monitor
+        'https://www.bol.com/nl/l/gaming-monitoren/N/10460/filter_N/4274299157/?page=1',    # monitor
         #'https://www.bol.com/nl/l/gaming-toetsenborden/N/18214/?page=1',                    # toetsenbord
         #'https://www.bol.com/nl/l/gaming-muizen/N/18212/?page=1',                           # muis
         #'https://www.bol.com/nl/l/gaming-headsets/N/18210/?page=1',                         # headset
         #'https://www.bol.com/nl/l/laptops/N/4770/?page=1',                                  # laptops
         #'https://www.bol.com/nl/l/game-racestoelen/N/44479/?page=1',                        # game_chair
         #'https://www.bol.com/nl/l/games-voor-de-pc/N/38907/?page=1',                        # pc_games
-        'https://www.bol.com/nl/l/boeken/N/8299/?page=1',                                   # boeken
+        #'https://www.bol.com/nl/l/boeken/N/8299/?page=1',                                   # boeken
     ]
 
-    for url in urls:        
-        p = Process(target = run_spider, args=(url,)) 
-        p.start()
-        p.join()
+    bol_scraper(urls)
