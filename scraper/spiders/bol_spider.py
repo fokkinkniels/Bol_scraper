@@ -1,4 +1,4 @@
-import scrapy, json, os, sqlite3
+import scrapy, json, os
 from types import prepare_class
 from datetime import datetime
 from scrapy.exceptions import CloseSpider
@@ -9,7 +9,13 @@ class BolSpider(scrapy.Spider):
     name = 'bol'
     start_urls = []
 
+
     def parse(self, response, counter_web = 1):
+
+        counter = 1
+        data = []
+
+        ##Check if the bol.com page is valid
 
         if response.status != 200:
             raise CloseSpider("Error code :{}".format(response.status))
@@ -17,8 +23,7 @@ class BolSpider(scrapy.Spider):
         if response.css('li.product-item--row').get() == None:
              raise CloseSpider("No more products to scrape here...")
 
-        counter = 1
-        data = []
+        ##Loop through all the products on the page and save the data to local variables
         
         for product in response.css('.product-item--row') :
 
@@ -30,6 +35,8 @@ class BolSpider(scrapy.Spider):
             if rating is not None:
                 rating = str(rating).split(' ')[1]
 
+            ##Save the data in a dictionary
+
             counter += 1
             my_dict = {
                 "title": title,
@@ -39,6 +46,8 @@ class BolSpider(scrapy.Spider):
                 "date": str(datetime.now()),
             }
             data.append(my_dict)
+
+        ##Create the Json file and save the dictionary to the file.
 
         pagename = str(response.url).split('/')[5]
         json_filename = "data-{}-bol.json".format(pagename)
@@ -59,6 +68,8 @@ class BolSpider(scrapy.Spider):
         os.remove(json_filename)
         os.rename('data_new.json', json_filename)
 
+        ##Create a URL to go to the next page and go there
+
         next_page = str(response.url)
         next_page = next_page.split('=')[0] + '=' + str(int(next_page.split('=')[1]) + 1)
         yield scrapy.Request(next_page, callback=self.parse)
@@ -66,6 +77,8 @@ class BolSpider(scrapy.Spider):
 
 
 def run_spider(url):
+
+    ##Create the spider and run the spider
 
     process = CrawlerProcess({
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
@@ -76,7 +89,9 @@ def run_spider(url):
     process.start() # the script will block here until the crawling is finished
    
 
-def bol_scraper(urls): # feed a list of URLS
+def bol_scraper(urls):
+
+    ## Call the spider function with a list of urls
 
     for url in urls:        
         p = Process(target = run_spider, args=(url,)) 
