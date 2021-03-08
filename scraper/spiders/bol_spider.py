@@ -1,4 +1,4 @@
-import scrapy, json, os
+import scrapy, json, os, sqlite3
 from types import prepare_class
 from datetime import datetime
 from scrapy.exceptions import CloseSpider
@@ -63,6 +63,8 @@ class BolSpider(scrapy.Spider):
         next_page = next_page.split('=')[0] + '=' + str(int(next_page.split('=')[1]) + 1)
         yield scrapy.Request(next_page, callback=self.parse)
 
+
+
 def run_spider(url):
 
     process = CrawlerProcess({
@@ -73,6 +75,7 @@ def run_spider(url):
     process.crawl(BolSpider)
     process.start() # the script will block here until the crawling is finished
    
+
 def bol_scraper(urls): # feed a list of URLS
 
     for url in urls:        
@@ -80,10 +83,11 @@ def bol_scraper(urls): # feed a list of URLS
         p.start()
         p.join()
 
+
 if __name__ == '__main__':
 
     urls = [
-        'https://www.bol.com/nl/l/gaming-monitoren/N/10460/filter_N/4274299157/?page=1',    # monitor
+        #'https://www.bol.com/nl/l/gaming-monitoren/N/10460/filter_N/4274299157/?page=1',     # monitor
         #'https://www.bol.com/nl/l/gaming-toetsenborden/N/18214/?page=1',                    # toetsenbord
         #'https://www.bol.com/nl/l/gaming-muizen/N/18212/?page=1',                           # muis
         #'https://www.bol.com/nl/l/gaming-headsets/N/18210/?page=1',                         # headset
@@ -94,3 +98,7 @@ if __name__ == '__main__':
     ]
 
     bol_scraper(urls)
+
+
+
+
